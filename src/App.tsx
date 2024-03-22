@@ -1,24 +1,32 @@
-import React from 'react';
-import logo from './logo.svg';
+import { useState } from 'react';
 import './App.css';
+import Header from './components/Header';
+import { CryptoIds, CryptoPair, options } from './utils/constants';
+import OrderBook from './components/OrderBook';
+import { useAppDispatch } from './redux/hooks';
+import { clearOrdersState, changeGroupTicketSize } from "./redux/slice/orderBookSlice";
+import GroupFunctionButton from './components/GroupFunctionButton';
 
 function App() {
+  const [cryptoId, setCryptoId] = useState(CryptoIds.XBTUSD);
+  const [isFeedKilled, setIsFeedKilled] = useState(false);
+  const dispatch = useAppDispatch();
+
+  const toggleCryptoId = (): void => {
+    dispatch(clearOrdersState());
+    setCryptoId(CryptoPair[cryptoId]);
+    dispatch(changeGroupTicketSize(options[CryptoPair[cryptoId]][0]));
+  };
+
+  const killFeed = (): void => {
+    setIsFeedKilled(!isFeedKilled);
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <Header options={options[cryptoId]}/>
+      <OrderBook CryptoId={cryptoId} isFeedKilled={isFeedKilled}/>
+      <GroupFunctionButton switchFeed={toggleCryptoId} killFeed={killFeed} isFeedKilled={isFeedKilled} />
     </div>
   );
 }
